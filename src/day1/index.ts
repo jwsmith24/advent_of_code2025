@@ -8,22 +8,28 @@ const lines = data.trim().split(/\r?\n/);
 console.log(`processed file, total lines: ${lines.length}`);
 
 let currentPosition = 50;
-let zeroCount = 0;
+let zeroPasses = 0;
 
 lines.forEach((line) => {
     const direction = line.slice(0,1);
-    const magnitude = line.slice(1);
+    const magnitude = Number(line.slice(1));
+
 
     if (direction === 'R') {
-        currentPosition = (currentPosition + Number(magnitude)) % 100;
+        const rawValue = currentPosition + magnitude;
+        zeroPasses += Math.floor(rawValue / 100);
+        currentPosition = (currentPosition + magnitude) % 100;
     } else if (direction === 'L') {
-        currentPosition = (currentPosition - Number(magnitude) + 100) % 100 // ensure positive before applying modulus
-    }
+        const tempPosition = currentPosition % 100;
+        const firstZeroIndex = tempPosition === 0 ? 100 : tempPosition;
+        if (magnitude >= firstZeroIndex) {
+            zeroPasses += 1 + Math.floor((magnitude - firstZeroIndex) / 100);
+        }
+        currentPosition = (((currentPosition - magnitude) % 100) + 100) % 100 // ensure positive before applying modulus
 
-    if (currentPosition === 0) {
-        zeroCount++;
     }
-
 });
 
-console.log(`Zero count: ${zeroCount}`);
+console.log(`Zero passes: ${zeroPasses}`)
+
+
